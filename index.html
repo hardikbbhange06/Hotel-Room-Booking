@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hotel Room Booking </title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	<style type="text/css">
+		.error{
+			color:red;
+		}
+
+        body{
+            background-color: aquamarine;
+        }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h2 class="text-center mt-5">Hotel Room Booking </h2>
+		<hr>
+		<div class="row">
+			<div class="col-md-6">
+				<form id="bookingForm" method="post">
+					<div class="form-group">
+						<label for="name">Name</label>
+						<input type="text" name="name" class="form-control" id="name">
+						<span class="error" id="nameError"></span>
+					</div>
+					<div class="form-group">
+						<label for="email">Email</label>
+						<input type="text" name="email" class="form-control" id="email">
+						<span class="error" id="emailError"></span>
+					</div>
+					<div class="form-group">
+						<label for="phone">Phone</label>
+						<input type="text" name="phone" class="form-control" id="phone">
+						<span class="error" id="phoneError"></span>
+					</div>
+					<div class="form-group">
+						<label for="address">Address</label>
+						<input type="text" name="address" class="form-control" id="address">
+						<span class="error" id="addressError"></span>
+					</div>
+					<div class="form-group">
+						<label for="roomType">Room Type</label>
+						<select class="form-control" name="roomType" id="roomType">
+							<option>Standard Room</option>
+							<option>Premium Room</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="roomNumber">Number of Rooms</label>
+						<input type="number" name="roomNumber" class="form-control" id="roomNumber" min="1">
+						<span class="error" id="roomNumberError"></span>
+					</div>
+					<div class="form-group">
+						<label for="checkInDate">Check-In Date</label>
+						<input type="date" name="checkInDate" class="form-control" id="checkInDate">
+						<span class="error" id="checkInDateError"></span>
+					</div>
+					<div class="form-group">
+						<label for="checkOutDate">Check-Out Date</label>
+						<input type="date" name="checkOutDate" class="form-control" id="checkOutDate">
+						<span class="error" id="checkOutDateError"></span>
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
+						<span class="error" id="bookingError"></span>
+					</div>
+				</form>
+			</div>
+			<div class="col-md-6">
+				<h4 class="mt-5">Available Rooms</h4>
+				<hr>
+				<div class="row" id="rooms">
+					<div class="text-center col-md-12">
+						<img src="./loader.jpg" width="100px" height="100px">
+                      
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			// Handle form submission
+			$("#bookingForm").submit(function(e){
+				e.preventDefault();
+				// Validate form
+				let isFormValid = validateForm();
+				if(isFormValid){
+					// Get form data
+					let formData = $(this).serialize();
+					// Submit form data
+					$.ajax({
+						url: 'api/booking.php',
+						method: 'POST',
+						data: formData,
+						beforeSend: function(){
+							$("#submitBtn").attr("disabled", true);
+							$("#submitBtn").html("<span class='spinner-border spinner-border-sm'></span> Submitting...");
+						},
+						success: function(response){
+							if(response.status == "success"){
+								$("#bookingError").html("<div class='alert alert-success'>" + response.message + "</div>");
+								$("#bookingForm")[0].reset();
+							}
+							else{
+								$("#bookingError").html("<div class='alert alert-danger'>" + response.message + "</div>");
+							}
+							$("#submitBtn").attr("disabled", false);
+							$("#submitBtn").html("Submit");
+						}
+					});
+				}
+			});
+
+			// Validate form
+			function validateForm(){
+				let isFormValid = true;
+				let name = $("#name").val();
+				let email = $("#email").val();
+				let phone = $("#phone").val();
+				let address = $("#address").val();
+				let roomNumber = $("#roomNumber").val();
+				let checkInDate = $("#checkInDate").val();
+				let checkOutDate = $("#checkOutDate").val();
+				// Validate Name
+				if(name == ""){
+					isFormValid = false;
+					$("#nameError").html("Please enter your name");
+				}
+				else{
+					$("#nameError").html("");
+				}
+				// Validate Email
+				if(email == ""){
+					isFormValid = false;
+					$("#emailError").html("Please enter your email");
+				}
+				else{
+					$("#emailError").html("");
+				}
+				// Validate Phone
+				if(phone == ""){
+					isFormValid = false;
+					$("#phoneError").html("Please enter your phone number");
+				}
+				else{
+					$("#phoneError").html("");
+				}
+				// Validate Address
+				if(address == ""){
+					isFormValid = false;
+					$("#addressError").html("Please enter your address");
+				}
+				else{
+					$("#addressError").html("");
+				}
+				// Validate Room Number
+				if(roomNumber == ""){
+					isFormValid = false;
+					$("#roomNumberError").html("Please enter number of rooms");
+				}
+				else{
+					$("#roomNumberError").html("");
+				}
+				// Validate Check-In Date
+				if(checkInDate == ""){
+					isFormValid = false;
+					$("#checkInDateError").html("Please enter check-in date");
+				}
+				else{
+					$("#checkInDateError").html("");
+				}
+				// Validate Check-Out Date
+				if(checkOutDate == ""){
+					isFormValid = false;
+					$("#checkOutDateError").html("Please enter check-out date");
+				}
+				else{
+					$("#checkOutDateError").html("");
+				}
+				return isFormValid;
+			}
+
+			// Get available rooms
+			$.ajax({
+				url: 'api/rooms.php',
+				method: 'GET',
+				dataType: 'json',
+				beforeSend: function(){
+					$("#rooms").html("<div class='text-center col-md-12'><img src='loader.gif' width='100px' height='100px'></div>");
+				},
+				success: function(response){
+					if(response.status == "success"){
+						$("#rooms").html("");
+						response.data.forEach(function(room){
+							$("#rooms").append("<div class='col-md-4 mt-4'><div class='card'><div class='card-body'><h4 class='card-title'>" + room.name + "</h4><p class='card-text'>" + room.description + "</p><h5>Rs." + room.price + "/day</h5></div></div></div>");
+						});
+					}
+					else{
+						$("#rooms").html("<div class='text-center col-md-12'>No rooms found</div>");
+					}
+				}
+			});
+		});
+	</script>
+</body>
+</html>
